@@ -5,9 +5,15 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21")
-        classpath("com.android.tools.build:gradle:7.2.0")
+        classpath(Plugin.JetBrains.gradle)
+        classpath(Plugin.Android.gradle)
+        classpath(Plugin.JetBrains.Dokka.gradle)
+        classpath(Plugin.MavenPublish.gradle)
     }
+}
+
+plugins {
+    id(Plugin.JetBrains.Dokka.id) version Version.dokka
 }
 
 allprojects {
@@ -15,8 +21,7 @@ allprojects {
         google()
         mavenCentral()
     }
-}
 
-tasks.register("clean", Delete::class) {
-    delete(rootProject.buildDir)
+    group = RELEASE_GROUP
+    version = RELEASE_VERSION
 }

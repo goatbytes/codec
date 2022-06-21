@@ -1,21 +1,24 @@
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
 plugins {
     kotlin("multiplatform")
+    id("org.jetbrains.dokka")
     id("com.android.library")
+    id("com.vanniktech.maven.publish")
 }
 
 kotlin {
     android()
-    
+
     val xcf = XCFramework()
     listOf(
         iosX64(),
         iosArm64(),
         iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
-            baseName = "codec"
+    ).forEach { target ->
+        target.binaries.framework {
+            baseName = RELEASE_ARTIFACT
             xcf.add(this)
         }
     }
@@ -56,5 +59,37 @@ android {
     defaultConfig {
         minSdk = 28
         targetSdk = 32
+    }
+}
+
+if (project.isConfiguredForPublishing()) {
+    mavenPublishing {
+        publishToMavenCentral(SonatypeHost.S01)
+        signAllPublications()
+
+        pom {
+            name.set(project.name)
+            description.set(RELEASE_DESCRIPTION)
+            url.set(RELEASE_URL)
+            licenses {
+                license {
+                    name.set(LICENSE_NAME)
+                    url.set(LICENSE_URL)
+                    distribution.set(LICENSE_DIST)
+                }
+            }
+            scm {
+                connection.set(SCM_CONNECTION)
+                developerConnection.set(SCM_DEV_CONNECTION)
+                url.set(RELEASE_URL)
+            }
+            developers {
+                developer {
+                    id.set(DEVELOPER_ID)
+                    name.set(DEVELOPER_NAME)
+                    url.set(DEVELOPER_URL)
+                }
+            }
+        }
     }
 }
