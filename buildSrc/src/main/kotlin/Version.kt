@@ -1,7 +1,5 @@
 object Version {
 
-    const val codec = "0.1.0"
-
     const val kotlin = "1.7.0"
 
     const val dokka = "1.7.0"

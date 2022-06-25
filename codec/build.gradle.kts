@@ -1,15 +1,36 @@
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinMultiplatform
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.dokka")
-    id("com.android.library")
     id("com.vanniktech.maven.publish")
 }
 
 kotlin {
-    android()
+    jvm {
+        withJava()
+    }
+
+    js(IR) {
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+            }
+        }
+        nodejs {
+            testTask {
+                useMocha {
+                    // Disable test case timeout, bringing parity with other platforms.
+                    timeout = "0"
+                }
+            }
+        }
+    }
 
     val xcf = XCFramework()
     listOf(
@@ -18,7 +39,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { target ->
         target.binaries.framework {
-            baseName = RELEASE_ARTIFACT
+            baseName = "codec"
             xcf.add(this)
         }
     }
@@ -30,8 +51,9 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
-        val androidMain by getting
-        val androidTest by getting
+        val jsMain by getting
+        val jvmMain by getting
+        val jvmTest by getting
         val iosX64Main by getting
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
@@ -49,47 +71,6 @@ kotlin {
             iosX64Test.dependsOn(this)
             iosArm64Test.dependsOn(this)
             iosSimulatorArm64Test.dependsOn(this)
-        }
-    }
-}
-
-android {
-    compileSdk = 32
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
-        minSdk = 28
-        targetSdk = 32
-    }
-}
-
-if (project.isConfiguredForPublishing()) {
-    mavenPublishing {
-        publishToMavenCentral(SonatypeHost.S01)
-        signAllPublications()
-
-        pom {
-            name.set(project.name)
-            description.set(RELEASE_DESCRIPTION)
-            url.set(RELEASE_URL)
-            licenses {
-                license {
-                    name.set(LICENSE_NAME)
-                    url.set(LICENSE_URL)
-                    distribution.set(LICENSE_DIST)
-                }
-            }
-            scm {
-                connection.set(SCM_CONNECTION)
-                developerConnection.set(SCM_DEV_CONNECTION)
-                url.set(RELEASE_URL)
-            }
-            developers {
-                developer {
-                    id.set(DEVELOPER_ID)
-                    name.set(DEVELOPER_NAME)
-                    url.set(DEVELOPER_URL)
-                }
-            }
         }
     }
 }

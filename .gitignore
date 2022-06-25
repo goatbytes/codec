@@ -17,6 +17,9 @@ out/
 *.apk
 *.ap_
 
+### JS
+kotlin-js-store/
+
 ### Android
 *.jks
 *.dex

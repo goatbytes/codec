@@ -21,7 +21,4 @@ allprojects {
         google()
         mavenCentral()
     }
-
-    group = RELEASE_GROUP
-    version = RELEASE_VERSION
 }
